@@ -11,7 +11,7 @@
     <h1>All Listings</h1>
     <ul>
         <% for(let listing of allListings){%>
-            <li><a href="/listing/<%= listing._id %>">
+            <li><a href="/listings/<%= listing._id %>">
                     <%= listing.title %>
                 </a></li>
             <%}%>
