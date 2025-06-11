@@ -36,44 +36,48 @@ app.get("/listings", async (req, res) => {
 })
 
 //new route
-app.get("/listings/new", (req,res)=>{
+app.get("/listings/new", (req, res) => {
     res.render("listings/new.ejs");
 })
 
 
 //create route
-app.post("/listings", async(req,res)=>{
+app.post("/listings", async (req, res, next) => {
     // let {title, description, price, image, country, location} = req.body;
-    const newlisting = new Listing(req.body.listing);
-    await newlisting.save();
-    res.redirect("/listings");
+    try {
+        const newlisting = new Listing(req.body.listing);
+        await newlisting.save();
+        res.redirect("/listings");
+    } catch (err) {
+        next(err);
+    }
 })
 
 //show route
 app.get("/listings/:id", async (req, res) => {
     let { id } = req.params;
     let listing = await Listing.findById(id);
-    res.render("listings/show.ejs", {listing});
+    res.render("listings/show.ejs", { listing });
 })
 
 //edit
-app.get("/listings/:id/edit", async(req,res)=>{
-    let {id} = req.params;
+app.get("/listings/:id/edit", async (req, res) => {
+    let { id } = req.params;
     const listing = await Listing.findById(id);
-    res.render("listings/edit.ejs", {listing});
+    res.render("listings/edit.ejs", { listing });
 })
 
 
 //update route
-app.put("/listings/:id", async(req,res)=>{
-    let {id} = req.params;
-    await Listing.findByIdAndUpdate(id, {...req.body.listing});
+app.put("/listings/:id", async (req, res) => {
+    let { id } = req.params;
+    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect(`/listings/${id}`);
 })
 
 //delete route
-app.delete("/listings/:id", async(req,res)=>{
-    let {id} = req.params;
+app.delete("/listings/:id", async (req, res) => {
+    let { id } = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
     res.redirect("/listings");
@@ -92,6 +96,10 @@ app.delete("/listings/:id", async(req,res)=>{
 //     res.send("successful testing");
 
 // })
+
+app.use((err, req, res, next) => {
+    res.send("Something went wrong");
+})
 
 //run server
 app.listen(4000, (req, res) => {
