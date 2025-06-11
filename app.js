@@ -5,6 +5,7 @@ const path = require("path");
 const app = express();
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync.js");
 
 async function connectDB() {
     await mongoose.connect("mongodb://localhost:27017/WanderStay");
@@ -42,16 +43,12 @@ app.get("/listings/new", (req, res) => {
 
 
 //create route
-app.post("/listings", async (req, res, next) => {
+app.post("/listings", wrapAsync(async (req, res, next) => {
     // let {title, description, price, image, country, location} = req.body;
-    try {
-        const newlisting = new Listing(req.body.listing);
-        await newlisting.save();
-        res.redirect("/listings");
-    } catch (err) {
-        next(err);
-    }
-})
+    const newlisting = new Listing(req.body.listing);
+    await newlisting.save();
+    res.redirect("/listings");
+}));
 
 //show route
 app.get("/listings/:id", async (req, res) => {
