@@ -47,7 +47,7 @@ app.get("/listings/new", (req, res) => {
 //create route
 app.post("/listings", wrapAsync(async (req, res, next) => {
     // let {title, description, price, image, country, location} = req.body;
-    if(!req.body.listing){
+    if (!req.body.listing) {
         throw new ExpressError(400, "Send valid data for listing");
     }
     const newlisting = new Listing(req.body);
@@ -56,15 +56,11 @@ app.post("/listings", wrapAsync(async (req, res, next) => {
 }));
 
 //show route
-app.get("/listings/:id", async (req, res) => {
-    try {
-        let { id } = req.params;
-        let listing = await Listing.findById(id);
-        res.render("listings/show.ejs", { listing });
-    }catch(err){
-        res.send("Invalid ID of listing");
-    }
-});
+app.get("/listings/:id", wrapAsync(async (req, res) => {
+    let { id } = req.params;
+    let listing = await Listing.findById(id);
+    res.render("listings/show.ejs", { listing });
+}));
 
 //edit
 app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
@@ -103,14 +99,17 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 
 // })
 
+
+//wildcard route
 app.all("/{*any}", (req, res, next) => {
     next(new ExpressError(404, "Page not found"));
 })
 
 app.use((err, req, res, next) => {
     let { statusCode = 500, message = "Page not found" } = err;
-    res.status(statusCode).send(message);
+    // res.status(statusCode).send(message);
     // res.send("Something went wrong");
+    res.status(statusCode).render("error.ejs", { message });
 })
 
 //run server
