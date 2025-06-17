@@ -8,6 +8,7 @@ const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema } = require("./schema.js");
+const Review = require("./models/review.js")
 
 async function connectDB() {
     await mongoose.connect("mongodb://localhost:27017/WanderStay");
@@ -34,11 +35,11 @@ app.get("/", (req, res) => {
 
 
 const validateListing = (req, res, next) => {
-    let {error} = listingSchema.validate(req.body);
+    let { error } = listingSchema.validate(req.body);
     if (error) {
-        let errMsg = error.details.map((el)=>el.message).join(".");
+        let errMsg = error.details.map((el) => el.message).join(".");
         throw new ExpressError(404, errMsg);
-    }else{
+    } else {
         next();
     }
 }
@@ -107,6 +108,18 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 
 // })
 
+
+//reviews
+app.post("/listings/:id/reviews", async (req, res) => {
+    // let { id } = req.params;
+    // let listing = await Listing.findById(id);
+    let listing = await Listing.findById(req.params.id);
+    let newReview = new Review(req.body.review);
+    listing.reviews.push(newReview);
+    await newReview.save();
+    await listing.save();
+    res.redirect(`/listings/${listing._id}`);
+})
 
 //wildcard route
 app.all("/{*any}", (req, res, next) => {
