@@ -120,6 +120,7 @@ app.delete("/listings/:id", wrapAsync(async (req, res) => {
 
 
 //reviews
+//post review route
 app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
     // let { id } = req.params;
     // let listing = await Listing.findById(id);
@@ -130,6 +131,14 @@ app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => 
     await listing.save();
     res.redirect(`/listings/${listing._id}`);
 }));
+
+//delete review route
+app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
+    let { id, reviewId } = req.params;
+    await Listing.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${id}`);
+}))
 
 //wildcard route
 app.all("/{*any}", (req, res, next) => {
