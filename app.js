@@ -1,16 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const Listing = require("./models/listing");
 const path = require("path");
 const app = express();
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema, reviewSchema } = require("./schema.js");
-const Review = require("./models/review.js")
 
 const listings = require("./routes/listing.js");
+const reviews = require("./routes/review.js")
 
 async function connectDB() {
     await mongoose.connect("mongodb://localhost:27017/WanderStay");
@@ -35,54 +32,10 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
-const validateReview = (req, res, next) => {
-    let { error } = reviewSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map((el) => el.message).join(".");
-        throw new ExpressError(404, errMsg);
-    } else {
-        next();
-    }
-}
 
+app.use("/listings", listings);// parent route
+app.use("/listings/:id/reviews", reviews); //parent route
 
-app.use("/listings", listings);
-
-// app.get("/testListing", async(req,res)=>{
-//     let sampleListing = new Listing({
-//         title:"my new villa",
-//         description:"on the beach",
-//         price:1200,
-//         location:"Goa",
-//         country:"India",
-//     })
-//     await sampleListing.save();
-//     console.log("sample was saved");
-//     res.send("successful testing");
-
-// })
-
-
-//reviews
-//post review route
-app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res) => {
-    // let { id } = req.params;
-    // let listing = await Listing.findById(id);
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-    listing.reviews.push(newReview);
-    await newReview.save();
-    await listing.save();
-    res.redirect(`/listings/${listing._id}`);
-}));
-
-//delete review route
-app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res) => {
-    let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, {$pull:{reviews: reviewId}});
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${id}`);
-}))
 
 //wildcard route
 app.all("/{*any}", (req, res, next) => {
