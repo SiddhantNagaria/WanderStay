@@ -11,6 +11,12 @@ app.use("/users", users);
 app.use("/posts", posts);
 
 
+app.get("/getcookies",(req,res)=>{
+    res.cookie("greet","hello");
+    res.cookie("hello","world");
+    res.send("cookies attached");
+})
+
 app.listen(8080, (req, res) => {
     console.log("serverlistening on 8080");
 })
