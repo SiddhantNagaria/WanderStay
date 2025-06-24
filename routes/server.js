@@ -3,11 +3,18 @@ const app = express();
 const users = require("./user");
 const posts = require("./post")
 const cookieParser = require("cookie-parser");
+const session = require("express-session");
 
 app.use(cookieParser("secretcode"));
 
+app.use(session({secret:"mysupersecretstring"}));
+
 app.get("/", (req, res) => {
     res.send("Hi i am root");
+})
+
+app.get("/test ",(req,res)=>{
+    res.send("test successful");
 })
 
 app.use("/users", users);
