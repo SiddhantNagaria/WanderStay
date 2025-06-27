@@ -7,14 +7,19 @@ const session = require("express-session");
 
 app.use(cookieParser("secretcode"));
 
-app.use(session({secret:"mysupersecretstring"}));
+app.use(session({ secret: "mysupersecretstring", resave: false, saveUninitialized: true }));
 
 app.get("/", (req, res) => {
     res.send("Hi i am root");
 })
 
-app.get("/test ",(req,res)=>{
+app.get("/test", (req, res) => {
     res.send("test successful");
+})
+
+app.get("/reqcount", (req, res) => {
+    res.session.count = 1;
+    res.send(`You sent a request ${req.session.count} times`);
 })
 
 app.use("/users", users);
@@ -45,7 +50,7 @@ app.get("/getsignedcookie", (req, res) => {
     res.send("signed cookie sent");
 })
 
-app.get("/verify",(req,res)=>{
+app.get("/verify", (req, res) => {
     console.log(req.cookies);
     res.send("verified");
 })
