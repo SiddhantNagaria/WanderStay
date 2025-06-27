@@ -7,7 +7,10 @@ const session = require("express-session");
 
 app.use(cookieParser("secretcode"));
 
-app.use(session({ secret: "mysupersecretstring", resave: false, saveUninitialized: true }));
+
+const sessionOptions = { secret: "mysupersecretstring", resave: false, saveUninitialized: true };
+
+app.use(session(sessionOptions));
 
 app.get("/", (req, res) => {
     res.send("Hi i am root");
@@ -20,6 +23,18 @@ app.get("/test", (req, res) => {
 app.get("/reqcount", (req, res) => {
     res.session.count = 1;
     res.send(`You sent a request ${req.session.count} times`);
+})
+
+app.get("/register", (req, res) => {
+    let { name = "anoynomous" } = req.query;
+    req.session.name = name;
+    console.log(req.session.name);
+    res.redirect("/hello");
+
+})
+
+app.get("/hello", (req, res) => {
+    res.send(`hello, ${req.session.name}`);
 })
 
 app.use("/users", users);
