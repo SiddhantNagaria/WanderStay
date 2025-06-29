@@ -4,13 +4,19 @@ const users = require("./user");
 const posts = require("./post")
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const flash = require("connect-flash");
+const path = require("path");
 
 app.use(cookieParser("secretcode"));
 
 
 const sessionOptions = { secret: "mysupersecretstring", resave: false, saveUninitialized: true };
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 app.use(session(sessionOptions));
+app.use(flash);
 
 app.get("/", (req, res) => {
     res.send("Hi i am root");
@@ -29,12 +35,13 @@ app.get("/register", (req, res) => {
     let { name = "anoynomous" } = req.query;
     req.session.name = name;
     console.log(req.session.name);
+    req.flash("success", "user registered successfully");
     res.redirect("/hello");
 
 })
 
-app.get("/hello", (req, res) => {
-    res.send(`hello, ${req.session.name}`);
+app.get("/hello", (req, res) => {  
+    res.render("page.ejs", { name: express.session.name, msg: req.flash("success")});
 })
 
 app.use("/users", users);
