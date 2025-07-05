@@ -40,6 +40,7 @@ const sessionOptions = {
     }
 }
 
+
 app.use(session(sessionOptions));
 
 app.get("/", (req, res) => {
